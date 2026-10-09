@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b0f22">
+<title>Tethered · Puzzl</title>
+<meta name="description" content="Sixteen pieces, four hidden words. Tie up the loose ends in a new daily puzzle from Puzzl.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Puzzl">
+<meta property="og:title" content="Tethered · Tie up the loose ends">
+<meta property="og:description" content="Sixteen pieces, four hidden words. Tie up the loose ends in a new daily puzzle from Puzzl.">
+<meta property="og:url" content="https://lukeb1991.github.io/Tethered/">
+<meta property="og:image" content="https://lukeb1991.github.io/Tethered/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://lukeb1991.github.io/Tethered/og-image.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🪢%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b0f22;--panel:#28172f;--panel2:#36203d;--line:rgba(225,175,215,.2);--line2:rgba(225,175,215,.42);
+  --muted:#bfa3bd;--ice:#f0d6ea;--text:#fdf3f8;--alarm:#ff6b7f;
+  --g0:#f4c35a;--g1:#5fd39b;--g2:#ff9a5c;--g3:#b591ff;--on-g:#24112a;
+  --purple:#a855f7;--pink:#ec4899;--grad:linear-gradient(90deg,var(--purple),var(--pink));
+  --serif:'DM Serif Display',Georgia,serif;--mono:'DM Mono',ui-monospace,monospace;--sans:'DM Sans',system-ui,sans-serif;
+  --th:clamp(62px, 9.2vh, 80px);
+  color-scheme:dark;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+}
+@supports (height:100dvh){:root{--th:clamp(62px, 9.2dvh, 80px)}}
+/* Puzzl is a dark brand: same palette whatever the viewer's theme */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#1b0f22;--text:#fdf3f8}}
+:root[data-theme="dark"]{--ink:#1b0f22;--text:#fdf3f8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;font-family:var(--sans);color:var(--text);-webkit-font-smoothing:antialiased;background-color:var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' fill='none' stroke='%23ffffff' stroke-opacity='.04' stroke-width='1.5'%3E%3Cpath d='M0 40c40 0 40 80 80 80s40-80 80-80'/%3E%3Cpath d='M0 120c40 0 40-80 80-80s40 80 80 80'/%3E%3Cpath d='M40 0c0 40 80 40 80 80s-80 40-80 80' stroke-opacity='.025'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 90% 40% at 50% -6%,rgba(236,72,153,.17),transparent 62%) fixed,var(--ink)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;touch-action:manipulation}
+:focus-visible{outline:2px solid var(--pink);outline-offset:3px;border-radius:6px}
+[hidden]{display:none!important}
+
+.wrap{max-width:500px;margin:0 auto;padding:12px 16px 0}
+.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:44px}
+.top .r{justify-self:end;display:flex;gap:8px}
+.icon{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ice);font:500 16px var(--mono);display:grid;place-items:center}
+.icon svg{width:16px;height:16px}
+.kicker{font:500 12px var(--mono);letter-spacing:.3em;color:var(--ice);text-transform:uppercase;white-space:nowrap}
+h1{font:400 50px/1 var(--serif);text-align:center;margin-top:4px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font:italic 400 21px var(--serif);color:var(--ice);text-align:center;margin-top:2px}
+
+/* Solved groups: four tags tied into one bundle */
+.bands{display:grid;gap:8px;margin-top:18px}
+.bands:empty{display:none}
+.band{position:relative;min-height:var(--th);border-radius:12px;background:var(--gc);color:var(--on-g);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 20px}
+.band b{font:400 19px/1.15 var(--serif)}
+.band span{font:700 12px/1.4 var(--sans);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.band.new{animation:tie .55s cubic-bezier(.2,1.4,.4,1) both}
+.band.missed{background:repeating-linear-gradient(135deg,rgba(255,255,255,.18) 0 6px,transparent 6px 12px),var(--gc);opacity:.88}
+@keyframes tie{from{opacity:0;transform:scaleX(.6) scaleY(.85)}to{opacity:1;transform:none}}
+
+/* The board: sixteen swing tags with a thread through the chosen ones */
+.board{position:relative;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tag{position:relative;height:var(--th);padding:16px 4px 6px;display:flex;align-items:center;justify-content:center;text-align:center;
+  background:linear-gradient(180deg,#47294e,#351d3c);color:var(--text);
+  clip-path:polygon(17% 0,83% 0,100% 17%,100% 100%,0 100%,0 17%);
+  font:700 min(25px, calc((min(100vw, 500px) - 88px) / 4 / (var(--n, 4) * .74)))/1.12 var(--sans);letter-spacing:.07em;text-transform:uppercase;overflow-wrap:break-word;
+  transition:background .15s,color .15s,transform .15s;user-select:none;-webkit-user-select:none}
+.tag::before{content:"";position:absolute;top:7px;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px #c58fb8;transition:box-shadow .15s}
+.tag:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--pink)}
+@media (hover:hover){.tag:hover:not(.on){background:linear-gradient(180deg,#55305c,#3f2347)}}
+.tag:active{transform:scale(.96)}
+.tag.on{background:linear-gradient(180deg,#fff6ef,#f2dcd6);color:var(--on-g)}
+.tag.on::before{box-shadow:0 0 0 2px var(--pink),0 0 8px 2px rgba(236,72,153,.6)}
+.tag.hop{animation:hop .32s ease both}
+.tag.shake{animation:shake .4s ease both}
+.tag.gather{transition:transform .28s ease,opacity .28s ease;transform:scale(.8);opacity:0}
+.grid.shuffle .tag{animation:swap .35s ease both}
+@keyframes hop{45%{transform:translateY(-8px)}}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes swap{from{opacity:.2;transform:scale(.9)}}
+.thread{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:2}
+.thread path{fill:none;stroke:var(--pink);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 3px rgba(236,72,153,.7))}
+.thread path.draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .22s ease-out forwards}
+.thread circle{fill:var(--pink)}
+.thread.snap path{animation:snap .45s ease-in forwards}
+.thread.snap circle{animation:fade .3s ease forwards}
+.thread.tight path{animation:tighten .3s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes snap{to{transform:translateY(26px);opacity:0}}
+@keyframes fade{to{opacity:0}}
+@keyframes tighten{to{opacity:0;stroke-width:5}}
+
+/* Mistakes: four strands of rope that fray */
+.strands{display:flex;align-items:center;justify-content:center;gap:10px;margin:16px 0 4px;font:500 13px var(--sans);color:var(--muted)}
+.strand{display:inline-flex;width:30px;height:12px}
+.strand svg{width:15px;height:12px;overflow:visible;transition:transform .35s,opacity .35s}
+.strand path{fill:none;stroke:var(--ice);stroke-width:2.2;stroke-linecap:round}
+.strand.lost svg{opacity:.28}
+.strand.lost svg:first-child{transform:rotate(-22deg) translate(-2px,2px)}
+.strand.lost svg:last-child{transform:rotate(22deg) translate(2px,2px)}
+.strand.lost path{stroke:var(--muted)}
+/* The spelling strip: what the picked pieces read in the order you tapped them */
+.spell{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;min-height:46px;margin:14px 0 0;font:500 25px var(--mono);letter-spacing:.06em;color:var(--text);text-transform:uppercase}
+.spell .ph{font:italic 400 18px var(--serif);color:var(--muted);letter-spacing:0;text-transform:none}
+.spell b{font-weight:500}.spell b:nth-of-type(even){color:#f9a8d4}
+.spell.bad,.spell.bad b{color:var(--alarm)}.spell.bad{animation:shake .4s ease}
+.spell.good,.spell.good b{color:var(--g1)}
+.mock{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;margin:0 0 10px;padding:8px 10px;border:1.5px dashed var(--line2);border-radius:12px;font:500 13px var(--sans);color:var(--muted)}
+.mock a{display:grid;place-items:center;min-width:30px;height:30px;border-radius:8px;background:var(--panel2);color:var(--ice);text-decoration:none;font:500 13px var(--mono)}
+.mock a.on{background:var(--grad);color:#fff}
+.mk-split{display:flex;gap:6px}.mk-split .btn{height:42px;padding:0 14px;font-size:14px}
+.mk-prev{font:500 13px var(--mono);color:var(--muted);margin-top:6px;min-height:18px;letter-spacing:.04em}
+.msg{min-height:22px;text-align:center;font:500 14px var(--sans);color:var(--muted);margin:6px 0}
+.msg.bad{color:#ff9aa8}.msg.warn{color:var(--g0)}.msg.good{color:var(--g1)}
+
+.hint{display:flex;justify-content:center;margin-bottom:10px}
+.hintbtn{height:36px;border-radius:999px;padding:0 16px;border:1.5px dashed var(--line2);color:var(--ice);font:500 13px var(--sans)}
+.hintcard{border:1px solid var(--line2);background:var(--panel);border-radius:12px;padding:10px 14px;font:400 15px/1.45 var(--sans);color:#d5dbf5;text-align:center;animation:in .4s ease both}
+.hintcard b{font:400 18px var(--serif);color:var(--text)}
+
+.controls{display:flex;gap:8px;justify-content:center;margin-top:6px}
+.btn{height:50px;border-radius:14px;padding:0 20px;font:700 15px var(--sans);color:#fff;background:var(--grad);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.35;cursor:default;transform:none}
+.btn.ghost{background:transparent;border:1.5px solid var(--line2);color:var(--ice)}
+.btn.wide{width:100%}
+.controls .btn{flex:1;padding:0 10px}
+.controls .btn.main{flex:1.4}
+
+/* End of day */
+.result{position:relative;margin-top:18px;text-align:center;border:1px solid var(--line);border-radius:14px;padding:24px 18px 22px;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(236,72,153,.14),transparent 70%),var(--panel);animation:in .5s ease both}
+.stamp{display:inline-block;font:500 20px var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:6px 14px 6px 17px;border:3px solid currentColor;border-radius:8px;
+  box-shadow:inset 0 0 0 3px var(--panel),inset 0 0 0 5px currentColor;color:var(--g1);transform:rotate(-6deg);animation:thump .5s cubic-bezier(.2,1.5,.45,1) .15s both}
+.stamp.fail{color:var(--alarm)}
+@keyframes thump{from{opacity:0;transform:rotate(-6deg) scale(2.2)}to{opacity:1;transform:rotate(-6deg) scale(1)}}
+.verdict{font:400 34px/1.1 var(--serif);margin-top:16px}
+.line{font:400 16px/1.5 var(--sans);color:#d5dbf5;margin-top:6px}
+.line b{color:var(--text);font-weight:700}
+.theme{margin:18px 0 6px;padding:16px 16px 15px;border-radius:12px;background:var(--panel2);border:1px solid var(--line2)}
+.theme small{display:block;font:500 11px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.theme strong{display:block;font:400 27px/1.15 var(--serif);color:var(--text);margin:5px 0 7px}
+.theme p{font:400 15px/1.55 var(--sans);color:#ecd7e6}
+.theme p b{color:var(--text);font-weight:700}
+.mini{display:grid;gap:5px;justify-content:center;margin:16px 0 4px}
+.mini div{display:flex;gap:5px}
+.mini i{width:26px;height:20px;border-radius:5px;background:var(--gc)}
+.streak{font:500 13px var(--mono);color:var(--ice);letter-spacing:.04em;margin-top:12px}
+.btns{display:flex;gap:8px;margin-top:18px}.btns .btn{flex:1;padding:0 12px}
+.next{font:500 13px var(--mono);color:var(--muted);margin-top:16px}
+.next b{color:var(--ice);font-weight:500}
+
+footer{text-align:center;font:400 12px var(--mono);color:var(--muted);padding:26px 0 calc(28px + env(safe-area-inset-bottom,0px))}
+footer b{color:#fff;font-weight:500}
+
+/* Modals */
+.modal{position:fixed;inset:0;background:rgba(14,6,16,.8);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal.open{display:flex}
+.sheet{width:100%;max-width:420px;max-height:calc(100% - 20px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;position:relative;animation:in .3s ease both}
+.sheet h2{font:400 30px var(--serif);margin-bottom:12px}
+.sheet p{font:400 15px/1.55 var(--sans);color:#d5dbf5;margin-bottom:10px}
+.sheet p b{color:var(--text)}
+.close{position:absolute;top:12px;right:12px}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 6px}
+.levels i{height:12px;border-radius:4px;background:var(--gc)}
+.levels-lab{display:flex;justify-content:space-between;font:500 12px var(--sans);color:var(--muted);margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin:8px 0 16px}
+.stats b{display:block;font:400 30px var(--serif)}
+.stats span{font:500 10px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.statlab{font:500 11px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.bar{display:flex;align-items:center;gap:8px;margin:5px 0;font:500 13px var(--mono)}
+.bar span{width:12px}
+.bar i{display:block;height:20px;min-width:24px;border-radius:4px;background:var(--panel2);font-style:normal;text-align:right;padding-right:7px;line-height:20px}
+.bar i.hl{background:var(--grad)}
+.toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top,0px));transform:translateX(-50%) translateY(-10px);background:var(--text);color:var(--ink);font:700 14px var(--sans);padding:10px 18px;border-radius:999px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
+.toast.show{opacity:1;transform:translateX(-50%)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.og{padding:20px;text-align:center}.og canvas{width:100%;max-width:1200px}
+
+/* Puzzle maker (?make) */
+.maker h2{font:400 30px var(--serif);margin:18px 0 6px}
+.maker p{font:400 15px/1.55 var(--sans);color:#d5dbf5;margin-bottom:12px}
+.mk-group{border-left:4px solid var(--gc);background:var(--panel);border-radius:10px;padding:12px;margin-bottom:10px}
+.mk-group label{display:block;font:500 12px var(--sans);color:var(--muted);margin-bottom:6px}
+.maker input,.maker select,.maker textarea{width:100%;background:var(--ink);border:1px solid var(--line2);border-radius:8px;color:var(--text);font:500 15px var(--sans);padding:9px 10px}
+.maker textarea{font:400 12px var(--mono);height:90px;resize:vertical}
+.mk-words{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.mk-words input{text-transform:uppercase}
+.mk-row{display:flex;gap:8px;margin:10px 0}.mk-row .btn{flex:1}
+.mk-note{font:500 13px var(--sans);min-height:20px;margin:6px 0}
+.mk-note.bad{color:#ff9aa8}.mk-note.warn{color:var(--g0)}.mk-note.good{color:var(--g1)}
+
+@media (max-width:360px){h1{font-size:44px}.grid{gap:6px}.kicker{font-size:11px;letter-spacing:.16em}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap" id="app">
+  <nav class="mock" id="mock" aria-label="Mock-up puzzles"></nav>
+  <div class="top">
+    <button class="icon" id="helpBtn" aria-label="How to play">?</button>
+    <span class="kicker" id="kicker">Puzzle No. 1</span>
+    <div class="r">
+      <button class="icon" id="soundBtn" aria-label="Sound on" aria-pressed="true"></button>
+      <button class="icon" id="statsBtn" aria-label="Your stats"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="8" width="3" height="7" rx="1"/><rect x="6.5" y="4" width="3" height="11" rx="1"/><rect x="12" y="1" width="3" height="14" rx="1"/></svg></button>
+    </div>
+  </div>
+  <h1>Tethered</h1>
+  <p class="sub">Tie up the loose ends</p>
+
+  <div class="bands" id="bands" aria-live="polite"></div>
+  <div class="board" id="board">
+    <div class="grid" id="grid" role="group" aria-label="Tags"></div>
+    <svg class="thread" id="thread" aria-hidden="true"></svg>
+  </div>
+
+  <div id="play">
+    <div class="spell" id="spell" aria-live="polite"></div>
+    <div class="strands" id="strands"></div>
+    <p class="msg" id="msg" aria-live="polite"></p>
+    <div class="hint" id="hint"></div>
+    <div class="controls">
+      <button class="btn ghost" id="shuffleBtn">Shuffle</button>
+      <button class="btn ghost" id="clearBtn" disabled>Clear</button>
+      <button class="btn main" id="tieBtn" disabled>Tie them</button>
+    </div>
+  </div>
+
+  <section class="result" id="result" hidden></section>
+  <footer>A new daily word puzzle from <b>Puzzl</b></footer>
+</main>
+
+<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="sheet">
+  <button class="icon close" data-close aria-label="Close">✕</button>
+  <h2 id="helpTitle">How to play</h2>
+  <p>Sixteen tags hide <b>four long words</b>, each chopped into four pieces. Tap the four pieces of one word, then press <b>Tie them</b>.</p>
+  <p>The strip under the tags shows what your pieces spell in the order you tap them. You can tie them in any order, though.</p>
+  <p>Watch out: some pieces join up into words that aren't the answer. Only one way of using all sixteen works.</p>
+  <p>You can make <b>four mistakes</b>. If you're down to your last one, you can ask for a hint.</p>
+  <p>Every puzzle has a loose theme. You'll find out what it was when you finish.</p>
+  <p>Everyone gets the same puzzle. A new one arrives every day at 7am UK time.</p>
+  <button class="btn wide" data-close>Let's play</button>
+</div></div>
+
+<div class="modal" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle"><div class="sheet">
+  <button class="icon close" data-close aria-label="Close">✕</button>
+  <h2 id="statsTitle">Your stats</h2>
+  <div class="stats" id="statsGrid"></div>
+  <div class="statlab">Mistakes when solved</div>
+  <div id="dist"></div>
+  <p style="margin-top:14px">Next puzzle in <b id="statsCountdown">--:--:--</b></p>
+</div></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ================= Settings ================= */
+const SITE_URL   = 'https://lukeb1991.github.io/Tethered/';  // ← your live address (share text + share image)
+const RESET_HOUR = 7;                                       // ← new puzzle each day at this hour, UK time
+const LAUNCH     = '2026-10-07';                            // ← date of Puzzle No. 1 (UK time). Must match 'launch' for Tethered on the Puzzl homepage
+const MAX_MISTAKES = 4;
+
+/* ================= Puzzles =================
+   One line per day, in order from LAUNCH. Puzzle No. 1 is the first line.
+   Each puzzle is a loose theme, a line explaining it, and four long words split into four pieces (e.g. THE/ATR/IC/AL).
+   The theme and line are revealed when the player finishes.
+   Make new lines with the puzzle maker: open this page with ?make on the end of the address.
+   Each line is scrambled so the answers aren't readable at a glance in view-source.
+   If the list runs out, it starts again from the top, so keep adding lines. */
+const PUZZLES = [
+  '==Qfd1lIU5kIsISRNJCLiU1RiwiISFkIbxSXiAVSIJCLiMlTPJCLikEVBJCLiwURSJyWs0lITVkUiwiIVRVQiwiISVEUiwiINVEVisFLdJCTBJCLiMUSiwiISRVQiwiIFhEVis1W6IydiwiIuQnbl1WdnJXYg4WYgwCZlZnclNHIuVmdlBycncmbpRGZ1BHIlJ3bmVmYgwCZuFGIwlGaz52bpRXYsVmcgQWZulWYyR3cgEGIscmbpNXayByclJXd0FmclBXblRHIsg2ZpNHIsF2YpJHdhVGa0BSQiojIkJCLiM3dhxWLulGIlhGdggGdpdHIyVmbulGRiojI0Jye',   // No. 1 · Wed 07 Oct
+  '==Qfd1lIF5kIsIyRBJCLiAVTiwiIBh0QisFLdJSRMJCLiAFUiwiIBVkTiwiIJBlIbxSXiklUSJCLiUkQiwiIQNlIsISQSJyWs0lIZJlIsIiUFJCLiI0VBJCLiIFVTJyWbpjI3JCLi4SZudWYw1WYoNGIoRXa3BCc1BCZlBHcvRHIuVGa0BCLsd3biBSZoRHIvRnbpBCZlBHcvh2YgUGbwBXYl5WawBCZuFGI5JnclJGczFmcgwSeyJXZidXYyR3UiojIkJCLiw2dvJGIoNmb1BHIyVWbtV3UiojI0Jye',   // No. 2 · Thu 08 Oct
+  '==Qfd1lIP5kIsISSDNUViwiIQBlIsISQDJyWs0lIFtkIsISQIJCLiM1SMJCLikUTisFLdJSREJCLiEkTiwiIP1kIsISRMJyWs0lIFRlIsISQMJCLi80QPJCLig0Qis1W6IydiwiIu8mbpN2Y1BHchNGIhBicvBSZrFGaztGbp1GIhBCLlRWYu9WblxGIsUGdhx2bj9GajBCdvhGI6UGbiFGdgEGIy9mZgQXahdHI19WegUGbph2dgIXZkJ3bg8GdgM3ZulGa0Bic19mRiojIkJCLiIXZ05WdvNGIpOsZhNGIlhGdgQXQiojI0Jye',   // No. 3 · Fri 09 Oct
+  '=0XXdJyUTJCLiUkTiwiIJBFUiwiIBhkIbxSXiAVSiwiIINlUiwiIFJkIsISTF1kIbxSXiAVSINlIsIiUBJCLiw0TIJCLiM0UisFLdJCUJhkIsIyUEJCLi4URJJCLiIlRis1W6IydiwiIuMXZvRHIyV3b5BibvBSdvlHIwVWZrByb0BCdzVnagwCcph2ctAibpBCZuVGItVGa0BiZvBSZlJHaUBiLzNXZulGcwFGagQmbhBCcph2cyVmYtVWbgEGIsAXaoNnchx2boN2cgEGIsAXaoNHZuVWayZkI6ICZiwiIz5Wa3BSZsRHdpxGIzdSZmlGTiojI0Jye',   // No. 4 · Sat 10 Oct
+  '==Qfd1lIF5kIsISSQJCLiU1QSJCLi8EUisFLdJyTHJCLi4USiwiINFkIsICTGJyWs0lIP9kIsIiUBJCLickTiwiIBtkIbxSXiQlTiwiIBhkIsICUFJCLiwURis1W6IydiwiIuUmbpBXdjJ3bwBCZuFGIvdmbp1WYsZGIs82byF2ZuF2agwCduFGawVGblBSZoRHI64WahRXayJEIulGIlNmblZGIhBCZulGalJGIlV2cgkHbu9GIsx2J19WegMHbh1WauFGIyV3bGJiOiQmIsIybvpHIlhGdgQXYgkXYkBSQiojI0Jye',   // No. 5 · Sun 11 Oct
+  '91VXiUkUiwiIVRlTiwiIFZlIsICRBJyWs0lIO9kIsISSUJCLiEkUCVkIsICTFNkIbxSXi40TJRlIsISQNJCLiI1TGJCLi4USisFLdJiTPlkIsICVBNlIsIiUFZlTiwiIPNkIbtlOicnIsIiLlJXd05WZ2RWYg4WYg8GdulGIz5mc1RHIn5WaoRHIlx2bodHIlhGdgQmbhBibvlGdhJnYlxWZjBSYgM3JlJXZoRHIs42bpRXYtJ3bm5WagUGa0BycrFWZsBSZu9WZt92cgwibvlGdhNnclZnbvNGIhBCa0l2dgMHdyFGdzBCdJJiOiQmIsIiclJWbl1WZyByb0BCdodWauBSQiojI0Jye',   // No. 6 · Mon 12 Oct
+  '==Qfd1lIFRVViwiIUlkIsICVTJCLiIUVTJyWs0lIEJVQiwiIPJkIsISRSJCLi80QTJyWs0lISVEUFJCLiU0SiwiIMFkIsIyTHJyWs0lISVkIsICTMFkIsIiQU9kIsIyTGJyWbpjI3JCLi4SZulGboNWdvRHIlhGdg42bgAXdgcmbp1mchdHIlRXd0lGdzJWdzBSZoRHIk5WYgQmch9mYlJ3bjNHIlhGdgwiclBXZltGbh92ZgUGa0BCLyVGbsFmY092bmBSZoRlI6ICZiwiIsxWYiR3bvZGIlhGdgQXYgkXYkJXd0F2UiojI0Jye',   // No. 7 · Tue 13 Oct
+  '==Qfd1lIU5URiwiINRlIsIyTMJCLiwUQisFLdJSRTJCLiU1TiwiIIVURiwiISRlIbxSXiU0UV9kIsICSUJCLig0RiwiIJxkIbxSXiU0UVJCLi8ESiwiIOVURiwiISdkIbtlOicnIsIiLzJXdvlHIlBXYjNXZg8Gdg82ZgU3b5BSZyVGa3BycpBCduVWb09GbsFGIlhGVg4Cdy92cgEGIm9GIzV2c19GagwGbhBSZyFGIlNXdvhWZlJHdgEGIk5WYgU2c19Ga0h2ZpxGIhBCLlNXdvhmblVmcnBSQiojIkJCLiUWbvhGIt9mcmBSZt9GSiojI0Jye',   // No. 8 · Wed 14 Oct
+  '==Qfd1lIBxkIsICTFJCLiIVQiwiIap1TNJyWs0lIBRlIsICVFJCLig0QiwiITVlUCJyWs0lIBJlIsISQOJCLi8kQiwiISF0QisFLdJSSURlIsISRIJCLicUQiwiIQNlIbtlOicnIsIiLlRWazBSZoRHIu9GIhxGblJXY6p3btBiZvBSe05WZsBHIk5WYgwibpFWbgI3bmBSYyFmbvJmchNGIpRHdlh2ZhB3cgwCdyFGdzByb0BSY0RXZoN2c1JnQiojIkJCLi4WYpxWY0lEIlhGdgQXYgQHanlmTiojI0Jye',   // No. 9 · Thu 15 Oct
+  '91VXi0UViwiIE5kIsISRSVkRiwiIFJlIbxSXiQlTiwiIF1kIsISRWVkIsISSINUQisFLdJCVOVUTiwiIFRlIsISSDJCLigVRisFLdJCVOVkIsISTOJCLiIVRiwiIW90Ris1W6IydiwiIu0Wdk5WZyVmZlJHIyVGa09mbhBicvZGIn5WasxWYjBSekFWZyxWYgUmbvVWbvNHIk5WYgwycyVmbul2dgUGa0BicvZGI05WZtVmdllGajFGIm9GIlNnblNHIhBCL05WdvNGIlhGdgQXYgQnbl1WZ0l2Y4VGIsUmbpxGIlhGdg42bgQnbl1mbyVmdvdGIlhGViojIkJCLiQHanlmbg42bpR3YlxWRiojI0Jye',   // No. 10 · Fri 16 Oct
+  '=0XXdJCRSJCLiE0TiwiICBlIsISVDJyWs0lISVUWiwiISRkIsIiUJJCLiEESisFLdJCSTVlIsIiUCJCLigEViwiIP9EVisFLdJiUFJCLig0UBdlIsICSTJCLikERis1W6IydiwiIu02bvJHa0FmYgUGa0BibpBicllnckJXahhGIlhGdgQmbhBCazVncihGdv9GdgUGa0BCLuVGajRXarBSZoRHIulGIkJXYvJGc1NGIlhGdgQmbhBiclh2chdHazlGZgUGaUJiOiQmIsISZzV3boBSZoRHIk5WdvJXQiojI0Jye',   // No. 11 · Sat 17 Oct
+  '==Qfd1lIINlIsISQXJCLiUEViwiIJh0VisFLdJCRSlkIsIiQLJCLiMUQiwiIMJkIbxSXigEViwiIJ1kIsIyULJCLiMUQMJkIbxSXiQkUBJCLi8kQiwiILNkIsISQMJkIbtlOicnIsIiLmZ2bgU3b5BydvJHa0Byb0BSZyVGa0BychdHIoNXY3VGdph2Vg4yajFGbiBCa0l2dgQnchR3cgwGbhBCa0lWbzt2YhxmYgQmbhBCZylmYrNWYsJGIsQmch9mYrNWYsJkI6ICZiwiIlRXaodHIk5WYgs2YhxmQiojI0Jye',   // No. 12 · Sun 18 Oct
+  '91VXi40TiwiIFxkIsISRNJCLiEESDJyWs0lIS9kIsICVBJCLicUSMJCLiwUQisFLdJSRMlkIsICRPJCLiM0TiwiISNkIbxSXiIVViwiIBNlIsIyTOJCLikERis1W6IydiwiIu42blxWZtFGajBSZoRHIk5WYgI3b0F2ZpxGbhBSZoRHIsUGbpR2bj9mcjBSZoRHIsIXdhN3bulGZgUGa0BiO3VmbgQmbhBCZs9GIzVGbpRHclJlI6ICZiwiIkVGZv9Gbi1CZs92QiojI0Jye',   // No. 13 · Mon 19 Oct
+  '=0XXdJiUBJCLiQkTiwiIFxkIsISQDJyWs0lIUhkIsIyRJJCLi4EVSJCLi8kRisFLdJSWBRkIsIiUFJCLiQ1UiwiIFllIbxSXikVQiwiIEhkIsICVSJCLikkQis1W6IydiwiIuIXYk5WZsF2YgUGa0BibvBCZlx2Yyl2YgwGbhBCL5F2dhBCdodWauRncvZGIhBCL5FGZyVGdzVWegwSehRGa0JXaiBSYgoTZtlGdgQXdvJWYgwGbBJiOiQmIsISZ0FGZgUGa0ByayFWTiojI0Jye',   // No. 14 · Tue 20 Oct
+  '==Qfd1lIEJlIsISQVJCLicURGJCLikETisFLdJSREJCLiEkTiwiIF1kIsIyTSBlIbxSXiUETiwiIUNVQDJCLiQkTiwiIBNlIbxSXiMlUJJCLiEESiwiIDtkIsIyQFRkIbtlOicnIsIiLoNGdhdHIn5WawVWZrBCZyFWdnVmZpxGIlhGdgQmbhBSZkFmbl12byBHIlhGdgcmbvxWYgwGbvJHdzBSYgwSZnRWZgM3JyVGdhdHIlhGdgQXYgUGb0NXYjRmbhNHIhBCLoNWYlJGIlhGdg42bgMncpFGajt2YlRkI6ICZiwiIlRWazFWZzBSZoRHIlRWazVmQiojI0Jye',   // No. 15 · Wed 21 Oct
+  '91VXiQFSiwiIHlkIsIiTSJCLiUkVPJyWs0lISVkIsICVBJCLiclUFJCLiQkTVJyWs0lIE5UQUJCLiMlUiwiIFRkIsIiTVJyWs0lIE5kIsISVPJlIsIyRSJCLiUEROVlIbtlOicnIsIiL0V3bgUmbvBCZk9GIlhGdgMXY3BCdodWauJXZ29EIuIXZk5WdggGdpdHI0JXY0NHIsxWYgIXZ0F2dyVGZuVHIk5WYgQmbhR3cyVGZuVHIsQmb19mcnJXZk5WViojIkJCLiIXZ29GIk5WYgIXZk5WViojI0Jye',   // No. 16 · Thu 22 Oct
+  '==Qfd1lIF5kIsISSDJCLikERiwiIF1kIbxSXiMUSiwiIEVUTiwiIBJlIsISQQJyWs0lIFNkIsIiTBxkIsISVCJCLi0UQisFLdJCTBJCLiQVSiwiIQNlIsIyTIJyWbpjI3JCLi4SZul2YpRWZtBSZt92cggGdpdHI0V3bgU3b5Byc0J3bzBCZuFGIsFGdpB3cvhGIvRHI19WegMHdldGIsU2YuFGb1JWbhBSZoRHIulGIzVmdpJnchByYpRWZtFmchBHIlhGViojIkJCLikTO5AyZulGbsF2QiojI0Jye',   // No. 17 · Fri 23 Oct
+  '==Qfd1lIBJlIsICVTJCLiUESDJCLiI1TisFLdJyUFJCLi40TiwiIIBFRiwiIBVESisFLdJSROJCLi8ESiwiIQ9kIsICTZhlIbxSXiUkTPJCLigEUiwiIPhlIsISQTJyWbpjI3JCLi4SYyR3clh2Yy9GIlhGdg4WagQXYlNHIhBSZilXYtBSehRGIl52bgQmbhBCLzJXdvJGanlWZuBSZoRHIlJXYwNHIvRHIzVmbvhGckFWZoBCLl52boB3bslHegEGIk5WYgUmbvhGcvhXYzBSQiojIkJCLiU2YpR3YhJHcgMWazVXTiojI0Jye',   // No. 18 · Sat 24 Oct
+  '=0XXdJyUUFkIsIyTDJCLi4USiwiIBJlIbxSXiMlUFJCLic1TMJCLiYkTiwiIVNlIbxSXiMVRiwiILFETGJCLic1TiwiIONlIbxSXi0kUiwiIPR1UiwiISVERiwiIOVFSUJyWbpjI3JCLi4yc0F2bj5WahJHIk5WYgMncld3bsZmb1NHIsMXZrFGbmd3buNHIs0mcvR3cyVGZuVHa0BiZvBCdyFGdzBSZoRHI0FGIn5WaklGagUmchBibpFmcgQmbhBib1NHIsc3buNHIsIXZk5WdoRlI6ICZiwiIlNXa1d2cpRGIulGI0NXYjVmcvZGIlhGViojI0Jye',   // No. 19 · Sun 25 Oct
+  '=0XXdJyROJCLikESiwiIUVUTiwiIPNlIbxSXiUkUiwiIFhkIsIyVZJCLiIVRWVkIbxSXikFRiwiIPJkIsISWSJCLiUkVFJyWs0lIH5USIJCLiQVWiwiISVkIsIiVFJyWbpjI3JCLi4Cd19GI19Wegg2Y0F2Yg8GdgUmbvBSZoRHIzF2dgcmbphGdl12bTBiL5JXZ2VGIoRXa3BCdyFGdzBCbsFGIlJXZodXeyVmdlBCZuFGI5R2bilnclZXZgwyZulGa0lnclZXRiojIkJCLiUmbvBCdzFGbgknclZXRiojI0Jye',   // No. 20 · Mon 26 Oct
+  '91VXiQlTiwiIBVkIsIyRSJCLiU0UisFLdJSRMJkIsISQUJCLiMlTiwiIPNkIbxSXiI1TUJCLiMURiwiIQNlIsIiTJJyWs0lIFZVSiwiIUNkIsISRUJCLiUERis1W6IydiwiIuUGZvNXawVGIsFmbpZGIlhGdgknYg4WagcmbpN3bsNGIsxWYgwCduFWZnJXZzBSZoRHIk5WYgUGbiFGdz52bjBSZoRHIsI3b0NWZwNnbpBSZoRHIsUmdpR3YlRXZkBSZoRlI6ICZiwiIh1WYyRGIl1WayNGI0h2Zp5GI5FGZuV3UiojI0Jye',   // No. 21 · Tue 27 Oct
+  '91VXiMFTiwiIMFkIsIiQX9kIsIiTTJyWs0lIO9kIsICVOJCLikUTiwiIEFkQisFLdJCTMJCLiEkQiwiIZVETMJCLi8kVisFLdJCTMFkIsIiQUJCLiU0SiwiITFkQis1W6IydiwiIuMXZ0FWbgIXdvlHI0FGIn5Wa39mcoRHIy9mZgQ3c1pGIlJXYgMHbsFmY39mbzBCZuFGIss2YvNWZsRHd1h2cgEGIzV2c1BibvRnbp1GZhJGIswGbhJGIhBCa0l2dgQWZ5FGbwBSZyFGIsxWYilXZsx2b2BCZuFGIsxWYiRXZrNXYCJiOiQmIsICbsFmYgEGIn5Wa2FGSiojI0Jye',   // No. 22 · Wed 28 Oct
+  '91VXisETiwiIBdVRiwiIDFkIsICUTJyWs0lIFRlIsISSMJCLiwURiwiIUF0UisFLdJSRQJCLi80QiwiITVkIsICTFRlIbxSXiQVVBJCLi40TiwiISRlIsIyUBJyWbpjI3JCLi4SZw92YzVGblRHIhBCanV3byhGdgwGbhBCdpByZulGajRXY3BSdvlHIk5WYgwCZhVGayVmdvBSZ0lGbsVGdhNHIhBCLrxWY3V2YhB3cgEGIu9GI0VXYu9mc0NXYg4WQiojIkJCLiYmZvBCdmlGTiojI0Jye',   // No. 23 · Thu 29 Oct
+  '=0XXdJCROFEViwiITRkIsIiTBJCLiI1RisFLdJyUDJCLikEUiwiINllIsICTPJyWs0lIO9ERiwiIFxkIsIiQNJCLik0VisFLdJiTPJCLiwESiwiIUFUSiwiISRlIbtlOicnIsIiLk5WY0NHZuFmcnBSZoRHIulGI0FWZzBSYgQmbhBibvRWZsJWbpdFIs42bshGdhlmc0BSYgwycjlGctlHbPBSZoRlI6ICZiwiI0J3bwNHIm9GIyVWbtV3UiojI0Jye',   // No. 24 · Fri 30 Oct
+  '==Qfd1lIT5kIsISSLJCLiAVTiwiIVBlIbxSXis0QJJCLiQ1UiwiIN90TiwiISJkIbxSXiMVRWxkIsIyTXJCLiUkUiwiIFdlIbxSXiMlTPJCLiQVRiwiIMVkIsIySTJyWbpjI3JCLi4CclR3cy92bkBSeyVmdlBibvBycul2aw1WdwBCZlZnchNGIk5WYgs2YpR3ct92byJGIzdCajRXa3BSYgwyclZHbvdXZyV2dgwycu9GdlxWZrNlI6ICZiwiIuVWZ39GbsFGSiojI0Jye',   // No. 25 · Sat 31 Oct
+  '==Qfd1lIEVkIsIiQSJCLiU0ViwiIPxkRisFLdJSRQJCLikEUiwiIFNlIsIyTIJyWs0lIX9kUSJCLiEkQiwiIMVkIsISRIdlIbxSXic1TiwiISNkIsISRSJCLiE0QTJyWbpjI3JCLi4CZlJmcld3bsZGIlhGdgI3bmBSZwlGclN3boBSYgQmbhBCLzRWZldHIm9GIsxWdmBydvJnchJGblVGa3BSYgwCZyFWdnBibvBydvJ3YlJXYjNHIBJiOiQmIsIiblRmchdGIlhGdg4WSiojI0Jye',   // No. 26 · Sun 01 Nov
+  '==Qfd1lINFESiwiIH5kIsISSLJCLiMUVCJyWs0lIZhkIsIyQSJCLiEkTiwiIP1kIbxSXi40TiwiIJRlIsISQO9kIsIiUPNkIbxSXiM1UiwiIFNkIsIiTJJCLiIFUis1W6IydiwiIuU2YhxWYQBSbhh2Zul2ajVnQgQXYgknbvNGbhJGIlhGdg02byZGIn5Wa2F2dgwGbhBCL5h2YyFmbv1GIhBCZuFGIu9Wa0FmbvJ3bjBSYgwyczV2YulmcwBSQiojIkJCLicmbptEIlhGdgUmdhNHIk92RiojI0Jye',   // No. 27 · Mon 02 Nov
+  '==Qfd1lIF5kIsIyTIBlIsISQHJCLiUUTisFLdJiUBJCLiQ1UiwiISVkIsICUVNlIbxSXi8kUFJCLigkUiwiIFBlIsISVTJyWs0lIUVkIsIySSFkIsISTSJCLiUEUVNlIbtlOicnIsIiLwVHIl1Wds9mdgUGa0BibyVHdg8GdgUmclhGdgMXY3BSZu9GawF2Zl1EIuIXZwV3cggGdpdHI0JXY0NHIsxWYgIXY0NnclBXdzBCZuFGIvJXZoJXZwV3cgwCdltmch1mclBXdTJiOiQmIsISZ6l2cgIXZwV3UiojI0Jye',   // No. 28 · Tue 03 Nov
+  '91VXiskUiwiIPdlIsISRNJCLi8ESisFLdJSTPJCLi8kUTJCLiMVQiwiIMNkIbxSXiQkTVJCLi8kUiwiIHllIsISQMBlIbxSXiIVRiwiIUNVQNJCLiQUQiwiIFhkIbtlOicnIsIiLrJ3b3VWbvhGIoNWdtBybvRHIyFmZgQmbhByc0V2ZklmZgY2bgwGb1ZGIt92byN3chx2YgEGIsQmb19mcnlXYsBHIlhGdg42bgIXZ0NXYtRWYlhGIlhGViojIkJCLiw2bvh2YzByb0ByajFmQiojI0Jye',   // No. 29 · Wed 04 Nov
+  '=0XXdJiUFRkIsIyVPJCLiAlTiwiIVdkIbxSXiMVRiwiISlkIsIiROJCLi8kQisFLdJyUSVkIsICTLJCLiIVQiwiIQNlIbxSXiM1SSJCLi80ViwiIFJlIsISSGJyWbpjI3JCLi4CdvxGUgIXZkd3bw5WdHBSZoRHIrJXYtByb0BCbsFGIsIXZi1WZ29mTgY2bggGdmlmZgUGa0BibvBycyVGbrJXYwNHIk5WYgM3ay92dlJXamBCLzVmcpZmbvJkI6ICZiwiIyVmYtVWblJHIsIXZi1WZtVmUiojI0Jye',   // No. 30 · Thu 05 Nov
+  '==Qfd1lIIRlIsIyTPJCLiQVRiwiIVxkQisFLdJCVFVESiwiITRUQiwiIFJlIsICUTJyWs0lIEJlIsISQPJCLiIUWiwiIFtkIbxSXiIVRiwiIUVlIsICUNJCLi80Qis1W6IydiwiIuUWbpRHI0NncpZGIzR3Yl5mbvNGIyVmdl5GI0FGa0BCdlNHZhVGaggGdv9GdlVHbCBSYgQmbhBCdlVGazRWYlJHczBSYgwCZyF2bilXZrBSYgwiclRXdw12bjBSQiojIkJCLiUWbvhGIt9mcmByZul2ay92ViojI0Jye',   // No. 31 · Fri 06 Nov
+  '=0XXdJyUFRlIsICVFJCLiwURiwiIN9kIbxSXiIVRHJCLiIVVCJCLiU0UFVkIsICSDJyWs0lITxETiwiIBJkIsICVBJCLiUUTisFLdJyUHJCLi4USiwiIMBlIsISTVRkIbtlOicnIsIiL5xGb1ZWZw9GagwSZ0FGbwBSZtF2cgUGa0BibvBCbsFGI09mTg4yclRHdlxWZt9GI5ZmZ1xmZgQmbhBicldmc1JWZzVWZoNGIhBCLzxGbhJGdhVWbgwycn5WasBXb1RkI6ICZiwiIk92bmBCdy9mZt92QiojI0Jye',   // No. 32 · Sat 07 Nov
+];
+const MOCK = false;  // ← true shows a bar for flicking between puzzles (for testing). ?p=5 on the address also plays puzzle 5 as practice
+
+/* ================= Helpers ================= */
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const encode = p => btoa(unescape(encodeURIComponent(JSON.stringify(p)))).split('').reverse().join('');
+const decode = s => JSON.parse(decodeURIComponent(escape(atob(s.split('').reverse().join('')))));
+const COLOURS = ['#f4c35a', '#5fd39b', '#ff9a5c', '#b591ff'];
+const EMOJI = ['🟨', '🟩', '🟧', '🟪'];
+
+function londonNow() {
+  const o = {};
+  new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/London', year:'numeric', month:'2-digit', day:'2-digit',
+    hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23'})
+    .formatToParts(new Date(Date.now() - RESET_HOUR * 3600e3)).forEach(p => o[p.type] = p.value);
+  return o;
+}
+function dayNumber() {
+  const o = londonNow(), [y, m, d] = LAUNCH.split('-').map(Number);
+  return Math.max(1, Math.round((Date.UTC(+o.year, +o.month - 1, +o.day) - Date.UTC(y, m - 1, d)) / 864e5) + 1);
+}
+function secondsToNext() { const o = londonNow(); return 86400 - (+o.hour * 3600 + +o.minute * 60 + +o.second); }
+const hms = s => [s / 3600 | 0, (s % 3600) / 60 | 0, s % 60].map(n => String(n).padStart(2, '0')).join(':');
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffled(arr, rand = Math.random) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const dateFor = n => { const [y, m, d] = LAUNCH.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d + n - 1)); };
+
+/* ================= Puzzle + state ================= */
+const params = new URLSearchParams(location.search);
+const TEST = params.get('test');   // practice preview from the puzzle maker: nothing is saved
+let PIDX = Math.min(PUZZLES.length, Math.max(0, parseInt(params.get('p'), 10) || 0));   // ?p=3 plays sample puzzle 3 as practice
+let PRACTICE = !!(TEST || PIDX);
+const unpack = s => { const d = decode(s); return Array.isArray(d) ? {t: '', d: '', w: d} : d; };   // {t: theme, d: how the words fit, w: four words as pieces}
+let THEME = null;
+const load = s => { const u = unpack(s); THEME = u.t ? {t: u.t, d: u.d || ''} : null; return u.w.map(f => ({n: f.join(''), w: f})); };   // {n: the whole word, w: its four pieces}
+const DAY = dayNumber();
+let P = null, GROUP = {}, ALL = [];
+function setPuzzle() {
+  try { P = TEST ? load(TEST) : load(PUZZLES[((PIDX || DAY) - 1) % PUZZLES.length]); } catch (e) { P = null; }
+  GROUP = {};
+  if (P) P.forEach((g, i) => g.w.forEach(w => GROUP[w] = i));
+  ALL = P ? P.flatMap(g => g.w) : [];
+}
+setPuzzle();
+
+const KEY = 'tethered-state', SKEY = 'tethered-stats';   // the Puzzl homepage reads these for ticks, streaks, stats and the leaderboard
+const fresh = () => ({day: DAY, order: shuffled(ALL, rng((PIDX || DAY) * 7919 + 17)), solved: [], guesses: [], hint: -1, status: 'play'});   // status: play | won | lost
+let S = (() => {
+  if (PRACTICE) return fresh();
+  const s = store.get(KEY, null);
+  const ok = s && s.day === DAY && Array.isArray(s.order) && s.order.length === 16 && s.order.every(w => w in GROUP);
+  return ok ? s : fresh();
+})();
+const save = () => { if (!PRACTICE) store.set(KEY, S); };
+const blankStats = () => ({played: 0, wins: 0, streak: 0, best: 0, lastDay: 0, dist: [0, 0, 0, 0]});
+let stats = Object.assign(blankStats(), store.get(SKEY, {}));
+const streakNow = () => stats.lastDay >= DAY - 1 ? stats.streak : 0;
+
+const isRight = g => g.every(w => GROUP[w] === GROUP[g[0]]);
+const mistakes = () => S.guesses.filter(g => !isRight(g)).length;
+const left = () => MAX_MISTAKES - mistakes();
+const done = () => S.status !== 'play';
+const sameSet = (a, b) => [...a].sort().join('|') === [...b].sort().join('|');
+let sel = [], busy = false, freshBand = -1, revealing = false;
+
+/* ================= Sound ================= */
+let soundOn = store.get('tethered-sound', true), actx = null;
+function ac() {
+  if (!soundOn) return null;
+  try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { return null; }
+  return actx;
+}
+function beep(freq, dur, type = 'sine', gain = .04, delay = 0, slideTo) {
+  const c = ac(); if (!c) return;
+  const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + delay;
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + .005); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + .02);
+}
+const sfx = {
+  pluck: n => beep(392 * Math.pow(1.26, n), .18, 'triangle', .05, 0, 392 * Math.pow(1.26, n) * .985),   // a string, a little higher each time
+  drop:  () => beep(300, .06, 'triangle', .025, 0, 220),
+  tie:   () => [523, 659, 784, 1047].forEach((f, i) => beep(f, .2, 'triangle', .045, i * .06)),
+  snap:  () => { beep(1800, .03, 'square', .03, 0, 400); beep(160, .25, 'sawtooth', .03, .03, 80); },
+  win:   () => [523, 659, 784, 1047, 1319].forEach((f, i) => beep(f, .28, 'triangle', .045, .1 + i * .1)),
+  lose:  () => { beep(300, .25, 'sawtooth', .03); beep(220, .4, 'sawtooth', .03, .22); }
+};
+const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/>';
+function paintSound() {
+  $('soundBtn').innerHTML = SPEAKER + (soundOn ? '<path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>' : '<path d="M17 9l5 6M22 9l-5 6"/></svg>');
+  $('soundBtn').setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off');
+  $('soundBtn').setAttribute('aria-pressed', soundOn);
+}
+
+/* ================= Rendering ================= */
+function say(t, type) { const m = $('msg'); m.textContent = t; m.className = 'msg' + (type ? ' ' + type : ''); }
+function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 1800); }
+const longest = w => Math.max(3, w.length);
+const tileEl = w => $('grid').querySelector(`[data-w="${CSS.escape(w)}"]`);
+
+function bandHTML(gi, cls = '') {
+  const g = P[gi];
+  return `<div class="band ${cls}" style="--gc:${COLOURS[gi]}" role="group" aria-label="${esc(g.n)}"><b>${esc(g.n.charAt(0) + g.n.slice(1).toLowerCase())}</b><span>${esc(g.w.join(' · '))}</span></div>`;
+}
+function renderBands() {
+  let h = S.solved.map(gi => bandHTML(gi, gi === freshBand ? 'new' : '')).join('');
+  if (S.status === 'lost' && !revealing) h += [0, 1, 2, 3].filter(gi => !S.solved.includes(gi)).map(gi => bandHTML(gi, 'missed')).join('');
+  $('bands').innerHTML = h;
+  freshBand = -1;
+}
+function renderGrid(anim) {
+  const left = S.order.filter(w => !S.solved.includes(GROUP[w]));
+  const grid = $('grid');
+  grid.hidden = done() || !left.length;
+  grid.innerHTML = left.map(w => `<button class="tag${sel.includes(w) ? ' on' : ''}" data-w="${esc(w)}" aria-pressed="${sel.includes(w)}" style="--n:${longest(w)}">${esc(w)}</button>`).join('');
+  if (anim) { grid.classList.remove('shuffle'); void grid.offsetWidth; grid.classList.add('shuffle'); setTimeout(() => grid.classList.remove('shuffle'), 400); }
+  drawThread();
+}
+function renderSel() {
+  $('grid').querySelectorAll('.tag').forEach(t => { const on = sel.includes(t.dataset.w); t.classList.toggle('on', on); t.setAttribute('aria-pressed', on); });
+  $('spell').className = 'spell';
+  $('spell').innerHTML = sel.length ? sel.map(x => `<b>${esc(x)}</b>`).join('') : '<span class="ph">Tap the pieces of a word</span>';
+  $('tieBtn').disabled = sel.length !== 4 || busy;
+  $('clearBtn').disabled = !sel.length || busy;
+}
+/* The thread: hangs from eyelet to eyelet in the order the tags were picked */
+function drawThread(newest) {
+  const svg = $('thread');
+  svg.classList.remove('snap', 'tight');
+  const pts = sel.map(w => { const t = tileEl(w); return t ? {x: t.offsetLeft + t.offsetWidth / 2, y: t.offsetTop + 12} : null; }).filter(Boolean);
+  let h = '';
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], d = Math.hypot(b.x - a.x, b.y - a.y), sag = 14 + d * .16;
+    const bow = Math.abs(b.x - a.x) < 40 ? 34 : 0;   // a steep drop still hangs in a curve
+    h += `<path pathLength="1" class="${newest && i === pts.length - 1 ? 'draw' : ''}" d="M${a.x} ${a.y} Q${(a.x + b.x) / 2 + bow} ${Math.max(a.y, b.y) + sag - bow * 1.4} ${b.x} ${b.y}"/>`;
+  }
+  h += pts.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3.5"/>`).join('');
+  svg.innerHTML = h;
+}
+const STRAND = '<svg viewBox="0 0 15 12" aria-hidden="true"><path d="M0 3c3 0 4 6 7.5 6S12 3 15 3M0 9c3 0 4-6 7.5-6S12 9 15 9"/></svg>';
+function renderStrands() {
+  const l = left();
+  $('strands').innerHTML = `<span>Mistakes left</span>` +
+    Array.from({length: MAX_MISTAKES}, (_, i) => `<span class="strand${i < l ? '' : ' lost'}">${STRAND}${STRAND}</span>`).join('');
+  $('strands').setAttribute('aria-label', `${l} mistake${l === 1 ? '' : 's'} left`);
+}
+function renderHint() {
+  const el = $('hint');
+  if (done()) { el.innerHTML = ''; return; }
+  if (S.hint >= 0 && !S.solved.includes(S.hint)) { el.innerHTML = `<div class="hintcard">One word has <b>${P[S.hint].n.length} letters</b> and starts with <b>${esc(P[S.hint].w[0])}</b></div>`; return; }
+  if (S.hint < 0 && left() === 1) { el.innerHTML = '<button class="hintbtn" id="hintBtn">Last strand. Show me a hint</button>'; $('hintBtn').onclick = useHint; return; }
+  el.innerHTML = '';
+}
+function render(anim) {
+  $('kicker').textContent = TEST ? 'Practice preview' : PIDX ? `Test puzzle ${PIDX}` : `Puzzle No. ${DAY}`;
+  renderBands(); renderGrid(anim); renderStrands(); renderHint(); renderSel();
+  $('play').hidden = done();
+  if (done() && !revealing) showResult(); else $('result').hidden = true;
+}
+
+/* ================= Playing ================= */
+function pick(w) {
+  if (busy || done()) return;
+  if (sel.includes(w)) { sel = sel.filter(x => x !== w); sfx.drop(); renderSel(); drawThread(); say(''); return; }
+  if (sel.length >= 4) { say('Four is the limit. Tap a tag again to untie it', 'warn'); return; }
+  sel.push(w); sfx.pluck(sel.length - 1); renderSel(); drawThread(true); say('');
+}
+function clearSel() { if (busy) return; sel = []; renderSel(); drawThread(); say(''); }
+function shuffleTags() {
+  if (busy || done()) return;
+  const solvedWords = S.order.filter(w => S.solved.includes(GROUP[w]));
+  S.order = [...solvedWords, ...shuffled(S.order.filter(w => !S.solved.includes(GROUP[w])))];
+  save(); renderGrid(true);
+}
+function useHint() {
+  if (done() || S.hint >= 0) return;
+  S.hint = [0, 1, 2, 3].find(gi => !S.solved.includes(gi));
+  save(); renderHint(); sfx.pluck(0);
+}
+
+async function submit() {
+  if (busy || sel.length !== 4 || done()) return;
+  if (S.guesses.some(g => sameSet(g, sel))) { say("You've already tried those four", 'warn'); return; }
+  busy = true; renderSel();
+  const guess = [...sel];
+  const tiles = guess.map(tileEl);
+  // the picked tags hop in turn
+  if (!reduceMotion) { tiles.forEach((t, i) => setTimeout(() => t.classList.add('hop'), i * 90)); await wait(90 * 3 + 340); }
+  tiles.forEach(t => t.classList.remove('hop'));
+  S.guesses.push(guess);
+  if (isRight(guess)) {
+    const gi = GROUP[guess[0]];
+    S.solved.push(gi);
+    if (S.solved.length === 4) S.status = 'won';
+    save(); sfx.tie();
+    $('thread').classList.add('tight'); $('spell').classList.add('good');
+    tiles.forEach(t => t.classList.add('gather'));
+    await wait(reduceMotion ? 0 : 300);
+    sel = []; freshBand = gi;
+    say(['Tied!', 'Knotted!', 'Nicely done!', 'Lovely stuff!'][Math.random() * 4 | 0], 'good');
+    busy = false;
+    if (done()) return finish();
+    renderBands(); renderGrid(); renderHint(); renderSel();
+  } else {
+    const counts = {}; guess.forEach(w => counts[GROUP[w]] = (counts[GROUP[w]] || 0) + 1);
+    const oneAway = Object.values(counts).includes(3);
+    if (mistakes() >= MAX_MISTAKES) S.status = 'lost';
+    save(); sfx.snap();
+    if (navigator.vibrate) navigator.vibrate(60);
+    $('thread').classList.add('snap'); $('spell').classList.add('bad');
+    tiles.forEach(t => t.classList.add('shake'));
+    renderStrands();
+    const l = left();
+    say(oneAway ? `One away. Three of those belong together. ${l} left.` : `Those don't make a word. ${l} mistake${l === 1 ? '' : 's'} left.`, 'bad');
+    await wait(reduceMotion ? 0 : 480);
+    tiles.forEach(t => t.classList.remove('shake'));
+    busy = false;
+    if (done()) { sel = []; return finish(); }
+    sel = []; renderSel(); drawThread(); renderHint();
+  }
+}
+
+async function finish() {
+  record();
+  if (S.status === 'won') { sfx.win(); render(); }
+  else {
+    sfx.lose();
+    // reveal the groups they missed, one at a time
+    revealing = true; render();
+    $('play').hidden = true;
+    for (const gi of [0, 1, 2, 3].filter(gi => !S.solved.includes(gi))) {
+      await wait(reduceMotion ? 0 : 450);
+      $('bands').insertAdjacentHTML('beforeend', bandHTML(gi, 'missed new'));
+    }
+    await wait(reduceMotion ? 0 : 300);
+    revealing = false; showResult();
+  }
+  setTimeout(() => $('result').scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest'}), reduceMotion ? 0 : 500);
+}
+function record() {
+  if (PRACTICE || stats.lastDay === DAY) return;
+  stats.played++;
+  stats.streak = stats.lastDay === DAY - 1 ? stats.streak + 1 : 1;   // a missed day breaks the streak
+  stats.best = Math.max(stats.best, stats.streak);
+  stats.lastDay = DAY;
+  if (S.status === 'won') { stats.wins++; stats.dist[mistakes()]++; }
+  store.set(SKEY, stats);
+}
+
+/* ================= Results ================= */
+function themeHTML() {
+  if (!THEME) return '';
+  let d = esc(THEME.d);
+  P.forEach(g => { d = d.replace(new RegExp(`\\b(${g.n})\\b`, 'gi'), '<b>$1</b>'); });
+  return `<div class="theme"><small>Today's theme</small><strong>${esc(THEME.t)}</strong>${d ? `<p>${d}</p>` : ''}</div>`;
+}
+const VERDICT = ['Perfect knot', 'Neatly tied', 'Holding firm', 'Hanging by a thread'];
+function showResult() {
+  const R = $('result');
+  if (!R.hidden && R.dataset.day == DAY) { tick(); return; }
+  const won = S.status === 'won', m = mistakes(), st = streakNow();
+  const line = won
+    ? `All four words with <b>${m === 0 ? 'no mistakes' : m === 1 ? '1 mistake' : m + ' mistakes'}</b>${S.hint >= 0 ? ' and a hint' : ''}.`
+    : `You tied <b>${S.solved.length} of 4</b> words. Today's answers are above.`;
+  const mini = S.guesses.map(g => `<div>${g.map(w => `<i style="--gc:${COLOURS[GROUP[w]]}"></i>`).join('')}</div>`).join('');
+  R.hidden = false; R.dataset.day = DAY;
+  R.innerHTML = `
+    <span class="stamp${won ? '' : ' fail'}">${won ? 'All tied up' : 'Unravelled'}</span>
+    <h2 class="verdict">${won ? VERDICT[m] : 'Came undone'}</h2>
+    <p class="line">${line}</p>
+    ${themeHTML()}
+    <div class="mini" aria-label="Your guesses by colour">${mini}</div>
+    ${st > 0 && !PRACTICE ? `<p class="streak">Day streak: ${st}</p>` : ''}
+    ${PRACTICE ? '<div class="btns"><button class="btn ghost" onclick="location.reload()">Play it again</button></div>'
+      : `<div class="btns"><button class="btn" id="shareImg">Share image</button><button class="btn ghost" id="copyBtn">Copy result</button></div>
+    <p class="next">Next puzzle in <b id="countdown">--:--:--</b></p>`}`;
+  if (!PRACTICE) { $('shareImg').onclick = shareImage; $('copyBtn').onclick = copyResult; }
+  tick();
+}
+const gridLines = () => S.guesses.map(g => g.map(w => EMOJI[GROUP[w]]).join('')).join('\n');
+function shareText() {
+  const won = S.status === 'won', st = streakNow();
+  return `🪢 Tethered #${DAY} ${won ? `${mistakes()} mistake${mistakes() === 1 ? '' : 's'}` : 'Unravelled'}${S.hint >= 0 ? ' 💡' : ''}\n\n${gridLines()}` +
+    (st > 1 ? `\n\n🔥 ${st} day streak` : '') + `\n${SITE_URL}`;
+}
+async function copyResult() {
+  const t = shareText();
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  toast('Copied. Paste it in the group chat');
+}
+function renderStats() {
+  const s = stats;
+  $('statsGrid').innerHTML = [['Played', s.played], ['Win %', s.played ? Math.round(s.wins / s.played * 100) : 0], ['Day streak', streakNow()], ['Best', s.best]]
+    .map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+  const mx = Math.max(1, ...s.dist), today = S.status === 'won' ? mistakes() : -1;
+  $('dist').innerHTML = s.dist.map((v, i) => `<div class="bar"><span>${i}</span><i class="${i === today ? 'hl' : ''}" style="width:${Math.max(8, v / mx * 90)}%">${v}</i></div>`).join('');
+}
+function tick() {
+  const s = secondsToNext();
+  const a = $('countdown'), b = $('statsCountdown');
+  if (a) a.textContent = hms(s);
+  if (b) b.textContent = hms(s);
+  if (s <= 1 && !PRACTICE) setTimeout(() => location.reload(), 1500);
+}
+
+/* ================= Canvas drawing (share image + og-image) ================= */
+async function fontsReady() {
+  try { await Promise.all(["400 100px 'DM Serif Display'", "italic 400 50px 'DM Serif Display'", "500 30px 'DM Mono'", "400 30px 'DM Mono'", "700 30px 'DM Sans'"].map(f => document.fonts.load(f))); } catch (e) {}
+}
+function rrect(x, a, b, w, h, r) {
+  x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r);
+  x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath();
+}
+function bg(x, W, H) {
+  x.fillStyle = '#1b0f22'; x.fillRect(0, 0, W, H);
+  const g = x.createRadialGradient(W / 2, -H * .05, 0, W / 2, -H * .05, H * .8);
+  g.addColorStop(0, 'rgba(236,72,153,.22)'); g.addColorStop(1, 'rgba(236,72,153,0)');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.save(); x.strokeStyle = 'rgba(255,255,255,.045)'; x.lineWidth = 2.5;
+  for (let oy = 0; oy < H + 240; oy += 240) for (let ox = 0; ox < W + 240; ox += 240) {
+    x.beginPath(); x.moveTo(ox, oy + 60); x.bezierCurveTo(ox + 60, oy + 60, ox + 60, oy + 180, ox + 120, oy + 180); x.bezierCurveTo(ox + 180, oy + 180, ox + 180, oy + 60, ox + 240, oy + 60); x.stroke();
+    x.beginPath(); x.moveTo(ox, oy + 180); x.bezierCurveTo(ox + 60, oy + 180, ox + 60, oy + 60, ox + 120, oy + 60); x.bezierCurveTo(ox + 180, oy + 60, ox + 180, oy + 180, ox + 240, oy + 180); x.stroke();
+  }
+  x.restore();
+}
+function frameLine(x, X, Y, W, H) {
+  x.strokeStyle = 'rgba(225,175,215,.45)'; x.lineWidth = 2; rrect(x, X, Y, W, H, 28); x.stroke();
+  x.strokeStyle = 'rgba(225,175,215,.18)'; x.lineWidth = 1.5; rrect(x, X + 14, Y + 14, W - 28, H - 28, 18); x.stroke();
+}
+function text(x, t, cx, y, font, fill, ls) {
+  x.font = font; x.fillStyle = fill; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+  if ('letterSpacing' in x) x.letterSpacing = ls || '0px';
+  x.fillText(t, cx, y);
+  if ('letterSpacing' in x) x.letterSpacing = '0px';
+}
+function gradTitle(x, t, cx, y, size) {
+  const font = `400 ${size}px 'DM Serif Display',Georgia,serif`; x.font = font;
+  const w = x.measureText(t).width, g = x.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0);
+  g.addColorStop(0, '#a855f7'); g.addColorStop(1, '#ec4899');
+  text(x, t, cx, y, font, g);
+}
+function footerLine(x, cx, y, size) {
+  const a = 'A new daily word puzzle from ', b = 'Puzzl';
+  const fa = `400 ${size}px 'DM Mono',monospace`, fb = `500 ${size}px 'DM Mono',monospace`;
+  x.font = fa; const wa = x.measureText(a).width; x.font = fb; const wb = x.measureText(b).width;
+  const sx = cx - (wa + wb) / 2; x.textAlign = 'left';
+  x.font = fa; x.fillStyle = '#bfa3bd'; x.fillText(a, sx, y);
+  x.font = fb; x.fillStyle = '#ffffff'; x.fillText(b, sx + wa, y);
+}
+function pill(x, t, cx, y, h, size) {
+  const font = `italic 400 ${size}px 'DM Serif Display',Georgia,serif`; x.font = font;
+  const w = x.measureText(t).width + h;
+  rrect(x, cx - w / 2, y, w, h, h / 2); x.fillStyle = '#28172f'; x.fill(); x.strokeStyle = 'rgba(225,175,215,.5)'; x.lineWidth = 2; x.stroke();
+  text(x, t, cx, y + h / 2 + size * .33, font, '#f0d6ea');
+}
+function stampDraw(x, t, cx, cy, size, col) {
+  x.save(); x.translate(cx, cy); x.rotate(-6 * Math.PI / 180);
+  x.font = `500 ${size}px 'DM Mono',monospace`;
+  if ('letterSpacing' in x) x.letterSpacing = size * .16 + 'px';
+  const w = x.measureText(t).width + size * 1.2, h = size * 1.75;
+  x.fillStyle = 'rgba(27,15,34,.9)'; rrect(x, -w / 2, -h / 2, w, h, size * .35); x.fill();
+  x.strokeStyle = col; x.lineWidth = size * .13; rrect(x, -w / 2, -h / 2, w, h, size * .35); x.stroke();
+  x.lineWidth = size * .07; const p = size * .24; rrect(x, -w / 2 + p, -h / 2 + p, w - 2 * p, h - 2 * p, size * .2); x.stroke();
+  x.fillStyle = col; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(t, size * .08, size * .04);
+  if ('letterSpacing' in x) x.letterSpacing = '0px';
+  x.restore();
+}
+/* One swing tag: clipped top corners and a punched eyelet */
+function tagDraw(x, X, Y, w, h, fill, label, labelCol) {
+  const c = Math.min(w, h) * .2;
+  x.beginPath(); x.moveTo(X + c, Y); x.lineTo(X + w - c, Y); x.lineTo(X + w, Y + c); x.lineTo(X + w, Y + h); x.lineTo(X, Y + h); x.lineTo(X, Y + c); x.closePath();
+  x.fillStyle = fill; x.fill();
+  const r = Math.max(4, h * .07);
+  x.beginPath(); x.arc(X + w / 2, Y + r * 2.3, r, 0, Math.PI * 2); x.fillStyle = '#1b0f22'; x.fill();
+  x.strokeStyle = 'rgba(17,20,43,.45)'; x.lineWidth = Math.max(2, r * .4); x.stroke();
+  if (label) text(x, label, X + w / 2, Y + h * .7, `700 ${h * .2}px 'DM Sans',sans-serif`, labelCol);
+}
+async function drawShare() {
+  await fontsReady();
+  const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  bg(x, W, H);
+  frameLine(x, 60, 60, 960, 1230);
+  const won = S.status === 'won', st = streakNow(), rows = S.guesses.length;
+  text(x, `PUZZLE NO. ${DAY}`, 540, 180, "500 30px 'DM Mono',monospace", '#f0d6ea', '10px');
+  gradTitle(x, 'Tethered', 540, 310, 132);
+  const extra = 92 + (st > 1 ? 52 : 0) + 40 + 86, gap = 14;
+  const th = Math.min(88, (1170 - 420 - extra - (rows - 1) * gap) / rows), tw = Math.min(th * 1.35, 150), gw = 4 * tw + 3 * gap, gh = rows * th + (rows - 1) * gap;
+  const block = gh + extra, top = 420 + Math.max(0, (1170 - 420 - block) / 2);
+  const gx = 540 - gw / 2;
+  S.guesses.forEach((g, r) => g.forEach((w, i) => tagDraw(x, gx + i * (tw + gap), top + r * (th + gap), tw, th, COLOURS[GROUP[w]])));
+  stampDraw(x, won ? 'ALL TIED UP' : 'UNRAVELLED', gx + gw - 60, top - 40, 34, won ? '#5fd39b' : '#ff6b7f');
+  const m = mistakes();
+  const res = won ? (m === 0 ? 'NO MISTAKES' : `${m} MISTAKE${m === 1 ? '' : 'S'}`) + (S.hint >= 0 ? ' + A HINT' : '') : `${S.solved.length} OF 4 WORDS TIED`;
+  let y = top + gh + 92;
+  text(x, res, 540, y, "500 32px 'DM Mono',monospace", '#fdf3f8', '3px');
+  if (st > 1) { y += 52; text(x, `${st} DAY STREAK`, 540, y, "500 30px 'DM Mono',monospace", '#f0d6ea', '6px'); }
+  pill(x, '“Can you tie up the loose ends?”', 540, y + 40, 86, 42);
+  text(x, SITE_URL.replace(/^https?:\/\//, '').replace(/\/$/, ''), 540, 1236, "400 28px 'DM Mono',monospace", '#bfa3bd');
+  footerLine(x, 540, 1328, 24);
+  return cv;
+}
+async function shareImage() {
+  const cv = await drawShare();
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  const file = new File([blob], `tethered-${DAY}.png`, {type: 'image/png'});
+  if (navigator.canShare && navigator.canShare({files: [file]})) {
+    try { await navigator.share({files: [file], text: shareText()}); } catch (e) {}
+    return;
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('Image saved');
+}
+async function drawOG() {
+  await fontsReady();
+  const W = 1200, H = 630, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  bg(x, W, H);
+  frameLine(x, 110, 46, 980, 536);
+  text(x, "TODAY'S PUZZLE", 600, 136, "500 22px 'DM Mono',monospace", '#f0d6ea', '8px');
+  gradTitle(x, 'Tethered', 600, 246, 112);
+  text(x, 'Tie up the loose ends.', 600, 302, "italic 400 38px 'DM Serif Display',Georgia,serif", '#f0d6ea');
+  const tw = 168, th = 120, gap = 18, sx = 600 - (4 * tw + 3 * gap) / 2, ty = 344;
+  const words = ['WHE', 'ARR', 'ELB', 'OW'], on = [true, false, true, false];
+  words.forEach((w, i) => tagDraw(x, sx + i * (tw + gap), ty, tw, th, on[i] ? '#fff1ea' : '#40254a', w, on[i] ? '#24112a' : '#fdf3f8'));
+  x.save(); x.strokeStyle = '#ec4899'; x.lineWidth = 4; x.shadowColor = 'rgba(236,72,153,.8)'; x.shadowBlur = 8;
+  const ey = ty + th * .07 * 2.3, a = sx + tw / 2, b = sx + 2 * (tw + gap) + tw / 2;
+  x.beginPath(); x.moveTo(a, ey); x.quadraticCurveTo((a + b) / 2, ey + 46, b, ey); x.stroke(); x.restore();
+  [a, b].forEach(px => { x.beginPath(); x.arc(px, ey, 6, 0, Math.PI * 2); x.fillStyle = '#ec4899'; x.fill(); });
+  footerLine(x, 600, 612, 20);
+  return cv;
+}
+
+/* ================= Puzzle maker (?make) ================= */
+const letters = s => s.toUpperCase().replace(/[^A-Z]/g, '');
+const pieces = s => s.split(/[\/\s|,]+/).map(letters).filter(Boolean);
+function autoSplit(word) {
+  const w = letters(word), L = w.length;
+  if (L < 8) return null;
+  const top = Math.min(L > 16 ? 6 : 4, L - 6);
+  for (let k = 0; k < 600; k++) {
+    const sz = [0, 0, 0].map(() => 2 + Math.floor(Math.random() * (top - 1)));
+    const last = L - sz.reduce((a, b) => a + b, 0);
+    if (last >= 2 && last <= top) { sz.push(last); let i = 0; return sz.map(n => w.slice(i, i += n)).join('/'); }
+  }
+  return null;
+}
+function maker() {
+  document.title = 'Puzzle maker · Tethered';
+  const opts = PUZZLES.map((_, i) => `<option value="${i}">No. ${i + 1} · ${dateFor(i + 1).toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC'})}</option>`).join('');
+  $('app').innerHTML = `
+    <div class="maker">
+      <h1>Tethered</h1>
+      <h2>Puzzle maker</h2>
+      <p>Type four long words (8 letters or more). Split each into four pieces with slashes, like THE/ATR/IC/AL, or press <b>Split</b> and it'll chop it for you (press again for a different split). Then press <b>Make line</b> and paste the line at the bottom of the PUZZLES list in index.html. The next empty day is No. ${PUZZLES.length + 1} (${dateFor(PUZZLES.length + 1).toLocaleDateString('en-GB', {day: 'numeric', month: 'long', timeZone: 'UTC'})}).</p>
+      <div class="mk-group" style="--gc:var(--ice)"><label for="mkLoad">Load an existing puzzle to check or edit it</label>
+        <select id="mkLoad"><option value="">Choose a puzzle…</option>${opts}</select></div>
+      <div class="mk-group" style="--gc:var(--pink)"><label for="mkT">Theme (keep it loose)</label><input id="mkT" maxlength="40" placeholder="e.g. Dinner with the in-laws">
+        <label for="mkD" style="margin-top:10px">How the words fit, shown when the puzzle ends</label><input id="mkD" maxlength="180" placeholder="e.g. A theatrical sigh, temperatures rising…"></div>
+      ${[0, 1, 2, 3].map(g => `<div class="mk-group" style="--gc:${COLOURS[g]}">
+        <label for="w${g}">Word ${g + 1}</label>
+        <div class="mk-split"><input id="w${g}" placeholder="e.g. THE/ATR/IC/AL" autocapitalize="characters" spellcheck="false" autocomplete="off"><button class="btn ghost" data-split="${g}">Split</button></div>
+        <div class="mk-prev" id="pv${g}"></div></div>`).join('')}
+      <p class="mk-note" id="mkNote"></p>
+      <div class="mk-row"><button class="btn" id="mkMake">Make line</button><button class="btn ghost" id="mkTest">Test play it</button></div>
+      <textarea id="mkOut" readonly aria-label="Line to paste"></textarea>
+      <div class="mk-row"><button class="btn ghost" id="mkCopy">Copy line</button></div>
+    </div>`;
+  const note = (t, c) => { $('mkNote').textContent = t; $('mkNote').className = 'mk-note ' + (c || ''); };
+  const preview = g => { const p = pieces($('w' + g).value); $('pv' + g).textContent = p.length ? `${p.join(' · ')}  →  ${p.join('')}${p.length !== 4 ? `  (${p.length} piece${p.length === 1 ? '' : 's'}, needs 4)` : ''}` : ''; };
+  [0, 1, 2, 3].forEach(g => { $('w' + g).addEventListener('input', () => preview(g)); });
+  document.querySelectorAll('[data-split]').forEach(b => b.onclick = () => {
+    const g = +b.dataset.split, s = autoSplit($('w' + g).value);
+    if (!s) { note('Type a word of at least 8 letters first.', 'bad'); return; }
+    $('w' + g).value = s; preview(g); note('');
+  });
+  const read = () => {
+    if (!$('mkT').value.trim()) { note('Give the puzzle a theme. A loose one is fine.', 'bad'); return null; }
+    const p = [0, 1, 2, 3].map(g => pieces($('w' + g).value));
+    const bad = p.findIndex(g => g.length !== 4);
+    if (bad >= 0) { note(`Word ${bad + 1} needs exactly four pieces, split with slashes.`, 'bad'); return null; }
+    if (p.flat().some(x => x.length < 2)) { note('Every piece needs at least two letters.', 'bad'); return null; }
+    const all = p.flat(), dup = all.find((w, i) => all.indexOf(w) !== i);
+    if (dup) { note(`The piece ${dup} is in there twice. Every piece needs to be different, so split one of those words another way.`, 'bad'); return null; }
+    const words = p.map(g => g.join(''));
+    if (new Set(words).size < 4) { note('Two of the words are the same.', 'bad'); return null; }
+    const long = all.find(x => x.length > 5);
+    note(long ? `Made. Heads up: ${long} is a long piece and may look cramped on small phones.` : 'Made. Copy the line and paste it into the PUZZLES list.', long ? 'warn' : 'good');
+    return {t: $('mkT').value.trim(), d: $('mkD').value.trim(), w: p};
+  };
+  $('mkMake').onclick = () => { const p = read(); if (p) $('mkOut').value = `  '${encode(p)}',`; };
+  $('mkCopy').onclick = async () => { const t = $('mkOut').value; if (!t) return; try { await navigator.clipboard.writeText(t); } catch (e) { $('mkOut').select(); document.execCommand('copy'); } toast('Line copied'); };
+  $('mkTest').onclick = () => { const p = read(); if (p) window.open(location.pathname + '?test=' + encodeURIComponent(encode(p)), '_blank'); };
+  $('mkLoad').onchange = e => {
+    if (e.target.value === '') return;
+    const u = unpack(PUZZLES[+e.target.value]); $('mkT').value = u.t || ''; $('mkD').value = u.d || '';
+    u.w.forEach((g, gi) => { $('w' + gi).value = g.join('/'); preview(gi); });
+    $('mkOut').value = ''; note(`Loaded No. ${+e.target.value + 1}. Change anything, then make a new line to replace the old one.`);
+  };
+}
+
+/* ================= Start ================= */
+function openM(id) { $(id).classList.add('open'); const c = $(id).querySelector('[data-close]'); c && c.focus({preventScroll: true}); }
+const modalOpen = () => !!document.querySelector('.modal.open');
+function mockBar() {
+  const el = $('mock');
+  if (!MOCK) { el.remove(); return; }
+  el.innerHTML = '<span>Samples</span>' + PUZZLES.map((_, i) => `<a href="?p=${i + 1}" data-p="${i + 1}" class="${PIDX === i + 1 || (!PIDX && !TEST && (DAY - 1) % PUZZLES.length === i) ? 'on' : ''}">${i + 1}</a>`).join('');
+  el.querySelectorAll('[data-p]').forEach(a => a.onclick = e => { e.preventDefault(); playSample(+a.dataset.p); });
+}
+function playSample(n) {
+  if (busy) return;
+  PIDX = n; PRACTICE = true; setPuzzle();
+  S = fresh(); sel = []; freshBand = -1; revealing = false;
+  $('result').hidden = true; $('result').dataset.day = '';
+  say(''); mockBar(); render();
+  try { history.replaceState(null, '', '?p=' + n); } catch (e) {}
+  window.scrollTo({top: 0, behavior: reduceMotion ? 'auto' : 'smooth'});
+}
+function init() {
+  mockBar();
+  paintSound();
+  $('helpBtn').onclick = () => openM('helpModal');
+  $('statsBtn').onclick = () => { renderStats(); tick(); openM('statsModal'); };
+  $('soundBtn').onclick = () => { soundOn = !soundOn; store.set('tethered-sound', soundOn); paintSound(); if (soundOn) sfx.pluck(2); };
+  document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => {
+    if (e.target === m || e.target.closest('[data-close]')) m.classList.remove('open');
+  }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open')); });
+  if (!P) { $('play').hidden = true; $('board').hidden = true; say(''); $('bands').innerHTML = '<div class="hintcard">Today\'s puzzle didn\'t load. Check the PUZZLES list in index.html.</div>'; return; }
+  $('grid').addEventListener('click', e => { const t = e.target.closest('.tag'); if (t) pick(t.dataset.w); });
+  $('tieBtn').onclick = submit;
+  $('clearBtn').onclick = clearSel;
+  $('shuffleBtn').onclick = shuffleTags;
+  if (done()) record();
+  render();
+  if (!PRACTICE && !store.get('tethered-v2-seen', false)) { openM('helpModal'); store.set('tethered-v2-seen', true); }   // new rules: show how to play once, even to old players
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => drawThread(), 80); });
+  setInterval(tick, 1000);
+  document.addEventListener('visibilitychange', () => { if (!PRACTICE && !document.hidden && dayNumber() !== DAY) location.reload(); });
+}
+
+if (params.has('og')) {
+  document.body.innerHTML = '<div class="og"><p class="kicker" style="margin-bottom:12px">og-image, 1200×630</p><div id="ogc"></div><button class="btn" id="ogdl" style="margin-top:16px">Download og-image.png</button></div>';
+  drawOG().then(cv => {
+    $('ogc').appendChild(cv);
+    $('ogdl').onclick = () => cv.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'og-image.png'; a.click(); }, 'image/png');
+  });
+} else if (params.has('make')) {
+  maker();
+} else {
+  init();
+}
+</script>
+</body>
+</html>
